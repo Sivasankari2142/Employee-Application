@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>emp details</title>
+    <link rel='stylesheet' href='style.css'/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function myform()
+        {
+            var requestObject = {};
+            requestObject.firstname=document.getElementById("fname").value;
+            requestObject.lastname=document.getElementById("lname").value;
+            requestObject.salary=parseInt(document.getElementById("salary").value);
+
+            var regex=/^[A-Za-z0-9]+$/;
+            if(requestObject.firstname=="")
+            {
+                alert("Enter first name");
+                return false;
+            }
+            if(requestObject.lastname=="")
+            {
+                alert("Enter last name");
+                return false;
+            }
+            if(requestObject.salary=="")
+            {
+                alert("Enter the salary");
+                return false;
+            }
+            var isvalid=regex.test(requestObject.firstname);
+            if(!isvalid){
+                alert("First name Contains special character");
+            }
+            var isvalidl=regex.test(requestObject.lastname);
+            if(!isvalidl){
+                alert("Last name Contains special character");
+            }
+            $.ajax({
+                type: "POST",
+                url: "/user",
+                data:  JSON.stringify(requestObject),
+                success: function (data) {
+                    console.log("response is")
+                    console.log(data)
+                    window.alert(data)
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<br><br><br><br><h1 align="center">ADD EMPLOYEE DETAILS</h1><br><br>
+<form align="center" name= emp_details  method="POST" >
+
+    <label for="fname">First name:</label>
+    <input type ="text" id="fname" name="fname"><br><br>
+    <label for="lname">Last name:</label>
+    <input type ="text" id="lname" name="lname"><br><br>
+    <label for="salary">Salary:</label>
+    <input type ="number" id="salary" name="salary"><br><br><br><br>
+    <button class="btn success"type="button" onclick="myform()">Add user</button><br><br>
+    <a href="index.html">Home</a>
+</form>
+
+</body>
+</html>

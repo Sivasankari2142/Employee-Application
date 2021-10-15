@@ -1,0 +1,198 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>All Employees</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    var myArray = []
+    $.ajax({
+      method:'GET',
+      url:'http://localhost:8888/users',
+      success:function(response){
+        myArray = response
+        buildTable(myArray)
+        console.log(myArray)
+      }
+    })
+    function buildTable(data){
+      var table = document.getElementById('myTable')
+      for (var i = 0; i < data.length; i++){
+        var row = `<tr>
+                     <td><a href="index.html" onclick="singleuser1(${data[i].id}); return false;">${data[i].id}</td>
+                     <td>${data[i].firstname}</td>
+                     <td>${data[i].lastname}</td>
+                     <td>${data[i].salary}</td>
+                     <td><button class="btn info" type="button" onclick="updateuser(${data[i].id})" id="myButton1" >UPDATE</button></td>
+                     <td><button class="btn danger" type="button"  onclick="del(${data[i].id});" id="myButton2" >DELETE</button></td>
+                 </tr>`
+        table.innerHTML += row
+      }
+    }
+    var singleuser
+    function singleuser1(id) {
+      console.log(id);
+      $.ajax({
+        method: 'GET',
+        url: 'http://localhost:8888/oneuser/'+id,
+        success: function (res) {
+          singleuser=res
+          table(singleuser)
+        }
+              }
+      );
+    }
+    function table(data){
+      var ta = document.getElementById('myTable')
+      var row = `<tr>
+             <td>${data.id}</td>
+
+             <td>${data.firstname}</td>
+
+             <td>${data.lastname}</td>
+
+             <td>${data.salary}</td>
+
+         </tr>`
+
+      ta.innerHTML = row
+    }
+      function del(id) {
+        console.log(id);
+        $.ajax({
+                  method: 'GET',
+                  url: 'http://localhost:8888/del/'+id,
+                  success: function (response) {
+                    window.alert("Deleted")
+                    reload = location.reload();
+                  }
+                }
+        );
+        reloadButton.addEventListener("click", reload, false);
+      }
+    function updateuser(id) {
+      $('#userid').val(id); //passing id to modal
+      $.ajax({
+        method: 'GET',
+        url: 'http://localhost:8888/oneuser/'+id,
+        data:{userid:id},
+        success: function (data) {
+          $('#add_data_Mo').modal('show');
+        }
+      });
+    }
+    function upp() {
+      var requestobj= {};
+      requestobj.userid=document.getElementById("userid").value;
+      requestobj.firstname = document.getElementById("fname").value;
+      requestobj.lastname = document.getElementById("lname").value;
+      requestobj.salary= parseInt(document.getElementById("salary").value);
+      $.ajax({
+        url:'http://localhost:8888/updateProfile',
+        type:"PUT",
+        data: JSON.stringify(requestobj),
+        success: function() {
+          alert('Updated');
+        },
+      });
+    }
+  </script>
+  <script>
+    function submitContactForm(){
+      var requestObject = {};
+      requestObject.id = $('#inputid').val();
+      requestObject.firstname = $('#inputfirstname').val();
+      requestObject.lastname = $('#inputlastname').val();
+      requestObject.salary = $('#inputsalary').val();
+      if(requestObject.firstname.trim() == '' ){
+        alert('Please enter your firstname.');
+        $('#inputfirstname').focus();
+        return false;
+      }else if(requestObject.lastname.trim() == '' ){
+        alert('Please enter your lastname.');
+        $('#inputlastname').focus();
+        return false;
+      }else if(requestObject.salary.trim() == '' ){
+        alert('Please enter your salary.');
+        $('#inputsalary').focus();
+        return false;
+      }else if(requestObject.id.trim() == '' ){
+        alert('Please enter your id.');
+        $('#inputid').focus();
+        return false;}
+      else{
+        $.ajax({
+          type:'PUT',
+          url:"/updateProfile",
+
+          data:JSON.stringify(requestObject),
+          beforeSend: function () {
+            $('.submitBtn').attr("disabled","disabled");
+            $('.modal-body').css('opacity', '.5');
+          },
+
+          success: function (data) {
+
+            console.log("reponse is")
+            console.log(data)
+            window.alert(data)
+            $('.submitBtn').removeAttr("disabled");
+            $('.modal-body').css('opacity', '');
+          }
+        });
+      }
+    }
+  </script>
+</head>
+
+<body>
+<br><br>
+<h1 align="center">Employee Details</h1><br><br>
+<table class="center">
+  <tr  class="bg-info">
+    <th>Employee ID</th>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Salary</th>
+    <th>      </th>
+    <th>       </th>
+  </tr>
+  <tbody id="myTable">
+  </tbody>
+</table><br><br><br><br><br>
+<button align="center" class="btn success"type="button" onclick="location.href = 'add.html';" id="myButton" >Add Employee</button>
+<div id="add_data_Mo" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">UPDATE EMPLOYEE DETAILS</h4>
+      </div>
+      <div class="modal-body" id="g">
+        <form  id="ff" >
+          <div class="form-group">
+            <label for="fname">First Name:</label>
+            <input type="text" class="form-control" id="fname" >
+          </div>
+          <div class="form-group">
+            <label for="lname">Last Name:</label>
+            <input type="text" class="form-control" id="lname"  >
+          </div>
+          <div class="form-group">
+            <label for="salary">Salary:</label>
+            <input type="number" class="form-control" id="salary" >
+          </div>
+          <input  id="userid"><br>
+          <button type="submit" class="btn btn-default" onclick="upp()">Submit</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
